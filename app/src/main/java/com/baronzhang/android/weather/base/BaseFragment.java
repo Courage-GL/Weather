@@ -8,9 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-/**
- * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com)
- */
 public class BaseFragment extends Fragment {
 
 //    private PublishSubject<FragmentLifecycleEvent> fragmentLifecycleSubject = PublishSubject.create();

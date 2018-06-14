@@ -14,9 +14,6 @@ import java.util.concurrent.TimeUnit;
 
 import rx.android.schedulers.AndroidSchedulers;
 
-/**
- * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com)
- */
 public class BaseActivity extends AppCompatActivity {
 
     /*

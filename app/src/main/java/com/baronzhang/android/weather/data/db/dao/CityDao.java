@@ -16,12 +16,9 @@ import com.baronzhang.android.weather.data.db.entities.HotCity;
 
 /**
  * City表操作类
- *
- * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com)
- *         16/3/13
  */
 public class CityDao {
-
+    //所有城市的列表
     private Dao<City, Integer> cityDaoOperation;
     private Dao<HotCity, Integer> hotCityDaoOperation;
 

@@ -3,10 +3,6 @@ package com.baronzhang.android.weather.base;
 import android.support.v7.widget.RecyclerView;
 import android.widget.AdapterView;
 
-/**
- * @author baronzhang (baron[dot]zhanglei[at]gmail[dot]com)
- *         16/4/15
- */
 public abstract class BaseRecyclerViewAdapter<T extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<T>{
 
     protected AdapterView.OnItemClickListener onItemClickListener;
