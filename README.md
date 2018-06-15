@@ -11,10 +11,9 @@
 * RxJava
 * Retrofit2
 * OKHttp3
-* ORMLite
-* Dagger2
+* GreenDao
 * ButterKnife
-* RetroLambd
+* mvp
 
 **App Module包结构**
 
