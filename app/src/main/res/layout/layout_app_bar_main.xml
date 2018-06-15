@@ -12,7 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="com.baronzhang.android.weather.feature.home.MainActivity">
+        tools:context="com.baronzhang.android.weather.com.xiaoalei.android.weather.feature.home.MainActivity">
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/appbar"
@@ -36,7 +36,7 @@
                     android:id="@+id/backdrop"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/weather_bg_1"
+                    android:background="@drawable/weather_bg_2"
                     android:contentDescription="@string/content_description_default"
                     android:fitsSystemWindows="true"
                     app:layout_collapseMode="parallax">

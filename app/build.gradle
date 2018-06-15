@@ -18,17 +18,17 @@ android {
         vectorDrawables.useSupportLibrary = true
     }
     buildTypes {
-        debug {
-            buildConfigField("boolean", "LOG_DEBUG", "true")
-            buildConfigField 'com.baronzhang.android.weather.util.StethoHelper', 'STETHO', 'new com.baronzhang.android.weather.DebugStethoHelper()'
-        }
-
-        release {
-            buildConfigField("boolean", "LOG_DEBUG", "false")
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            buildConfigField 'com.baronzhang.android.weather.util.StethoHelper', 'STETHO', 'new com.baronzhang.android.weather.util.stetho.ReleaseStethoHelper()'
-        }
+//        debug {
+//            buildConfigField("boolean", "LOG_DEBUG", "true")
+//            buildConfigField 'StethoHelper', 'STETHO', 'new DebugStethoHelper()'
+//        }
+//
+//        release {
+//            buildConfigField("boolean", "LOG_DEBUG", "false")
+//            minifyEnabled false
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            buildConfigField 'StethoHelper', 'STETHO', 'new ReleaseStethoHelper()'
+//        }
     }
 
     lintOptions {
