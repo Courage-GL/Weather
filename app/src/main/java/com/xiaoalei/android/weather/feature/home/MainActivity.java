@@ -1,11 +1,19 @@
 package com.xiaoalei.android.weather.feature.home;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -16,17 +24,26 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
-
+import android.widget.Toast;
+import com.baidu.location.BDLocation;
+import com.baidu.location.BDLocationListener;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.xiaoalei.android.weather.R;
 import com.xiaoalei.android.weather.about.AboutUsActivity;
 import com.xiaoalei.android.weather.base.BaseActivity;
 import com.xiaoalei.android.library.util.ActivityUtils;
 import com.xiaoalei.android.library.util.DateConvertUtils;
 import com.xiaoalei.android.weather.WeatherApplication;
+import com.xiaoalei.android.weather.data.db.CityDatabaseHelper;
 import com.xiaoalei.android.weather.data.db.entities.minimalist.Weather;
 import com.xiaoalei.android.weather.feature.home.drawer.DrawerMenuPresenter;
 import com.xiaoalei.android.weather.feature.home.drawer.DrawerMenuFragment;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.header.ClassicsHeader;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -61,8 +78,8 @@ public class MainActivity extends BaseActivity
     @Inject
     HomePagePresenter homePagePresenter;
     DrawerMenuPresenter drawerMenuPresenter;
-
-    private String currentCityId;
+    private LocationClient mLocationClient;
+    private String cityId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,15 +95,15 @@ public class MainActivity extends BaseActivity
         }
 
         setContentView(com.xiaoalei.android.weather.R.layout.activity_main);
-
+        getLoactionQX();
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        //设置 Header 为 Material风格
+               //设置 Header 为 Material风格
         ClassicsHeader header = new ClassicsHeader(this);
         header.setPrimaryColors(this.getResources().getColor(com.xiaoalei.android.weather.R.color.colorPrimary), Color.WHITE);
         this.smartRefreshLayout.setRefreshHeader(header);
-        this.smartRefreshLayout.setOnRefreshListener(refreshLayout -> homePagePresenter.loadWeather(currentCityId, true));
+        this.smartRefreshLayout.setOnRefreshListener(refreshLayout -> homePagePresenter.loadWeather(cityId, true));
 
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar, com.xiaoalei.android.weather.R.string.navigation_drawer_open, com.xiaoalei.android.weather.R.string.navigation_drawer_close);
@@ -138,7 +155,7 @@ public class MainActivity extends BaseActivity
         if (id == com.xiaoalei.android.weather.R.id.action_settings) {
             return true;
         } else if (id == com.xiaoalei.android.weather.R.id.action_about) {
-            Intent intent=new Intent(this, AboutUsActivity.class);
+            Intent intent = new Intent(this, AboutUsActivity.class);
             startActivity(intent);
             return true;
         } else if (id == com.xiaoalei.android.weather.R.id.action_feedback) {
@@ -149,11 +166,10 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void updatePageTitle(Weather weather) {
-        currentCityId = weather.getCityId();
+        cityId = weather.getCityId();
         smartRefreshLayout.finishRefresh();
         toolbar.setTitle(weather.getCityName());
         collapsingToolbarLayout.setTitle(weather.getCityName());
-
         tempTextView.setText(weather.getWeatherLive().getTemp());
         weatherNameTextView.setText(weather.getWeatherLive().getWeather());
         realTimeTextView.setText(getString(com.xiaoalei.android.weather.R.string.string_publish_time) + DateConvertUtils.timeStampToDate(weather.getWeatherLive().getTime(), DateConvertUtils.DATA_FORMAT_PATTEN_YYYY_MM_DD_HH_MM));
@@ -172,4 +188,84 @@ public class MainActivity extends BaseActivity
 
         new Handler().postDelayed(() -> homePagePresenter.loadWeather(cityId, false), 250);
     }
+
+
+    private void initLocation() {
+        mLocationClient = new LocationClient(getApplicationContext());
+        mLocationClient.registerLocationListener(new BDLocationListener() {
+            @Override
+            public void onReceiveLocation(BDLocation bdLocation) {
+                SQLiteDatabase readableDatabase = CityDatabaseHelper.getInstance(getApplicationContext()).getReadableDatabase();
+                Cursor cursor = readableDatabase.rawQuery("Select posID from HotCity where name=?", new String[]{bdLocation.getCity().substring(0, bdLocation.getCity().length() - 1)});
+                if (cursor.moveToFirst()) {
+                    do {
+                        //遍历Cursor对象，取出数据并打印
+                        cityId= cursor.getString(cursor.getColumnIndex("posID"));
+                        homePagePresenter.loadWeather(cityId, true);
+
+                    } while (cursor.moveToNext());
+                }
+                cursor.close();
+                readableDatabase.close();
+            }
+        });
+    }
+
+    public void getLoactionQX() {
+        List<String> permissionList = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.READ_PHONE_STATE);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+
+        if (!permissionList.isEmpty()) {
+            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(MainActivity.this, permissions, 1);
+        }
+
+
+    }
+
+    //开启定位
+    private void requestLocation() {
+        LocationClientOption option = new LocationClientOption();
+        option.setIsNeedAddress(true);
+        mLocationClient.setLocOption(option);
+        mLocationClient.start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0) {
+                    for (int result : grantResults ) {
+                        if (result != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "必须同意所有的权限才能使用本程序", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+                      initLocation();
+                        requestLocation();
+                } else {
+                    Toast.makeText(this, "发生了错误", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initLocation();
+        requestLocation();
+    }
 }
+
+
+

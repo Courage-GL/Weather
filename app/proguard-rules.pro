@@ -21,3 +21,8 @@
 # Retrofit
 -dontwarn okio.**
 -dontwarn javax.annotation.*
+
+# 百度地图 主要是定位 获取地址 然后更新天气
+-keep class com.baidu.** {*;}
+-keep class mapsdkvi.com.** {*;}
+-dontwarn com.baidu.**

@@ -56,7 +56,7 @@ public final class HomePagePresenter implements HomePageContract.Presenter {
         Subscription subscription = WeatherDataRepository.getWeather(context, cityId, weatherDao, refreshNow)
                 .compose(RxSchedulerUtils.normalSchedulersTransformer())
                 .subscribe(weatherView::displayWeatherInformation, throwable -> {
-                    Toast.makeText(context, throwable.getMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "查询失败，该地区暂时没有天气数据", Toast.LENGTH_LONG).show();
                 });
         subscriptions.add(subscription);
     }

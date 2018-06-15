@@ -34,20 +34,24 @@ android {
     lintOptions {
         abortOnError false
     }
+
+    sourceSets{
+        main{
+            jniLibs.srcDir 'libs'
+            //说明so的路径为该libs路径，关联所有地图SDK的so文件
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
-
     implementation project(':library')
     implementation project(':widget')
-
     implementation rootProject.ext.dependencies["butterknife"]
     annotationProcessor rootProject.ext.dependencies["butterknife-compiler"]
-
     implementation rootProject.ext.dependencies["dagger"]
     annotationProcessor rootProject.ext.dependencies["dagger-compiler"]
-
     implementation rootProject.ext.dependencies["retrofit2-fastjson-converter"]
+    implementation files('libs/BaiduLBS_Android.jar')
 }
